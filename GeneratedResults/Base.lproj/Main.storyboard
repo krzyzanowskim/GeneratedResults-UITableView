@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6211" systemVersion="14A298i" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6204"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
-                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="GeneratedResults" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
                         <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
@@ -15,11 +15,45 @@
                     <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="gqx-vR-SoX">
+                                <rect key="frame" x="0.0" y="20" width="600" height="580"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="vXZ-lx-hvc" id="XMe-Wg-Xb0"/>
+                                    <outlet property="delegate" destination="vXZ-lx-hvc" id="VQd-7d-Ppv"/>
+                                </connections>
+                            </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7JA-Tk-mMg">
+                                <rect key="frame" x="415" y="35" width="173" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="173" id="QrQ-Q7-fhZ"/>
+                                </constraints>
+                                <state key="normal" title="Load more">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="loadMoreTapped:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Pvp-Jc-iJz"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="gqx-vR-SoX" firstAttribute="top" secondItem="7JA-Tk-mMg" secondAttribute="bottom" constant="-45" id="5F3-fa-YEE"/>
+                            <constraint firstItem="7JA-Tk-mMg" firstAttribute="leading" secondItem="gqx-vR-SoX" secondAttribute="trailing" constant="-185" id="DuF-dj-6mw"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="gqx-vR-SoX" secondAttribute="bottom" id="eqf-Wv-Pmo"/>
+                            <constraint firstItem="gqx-vR-SoX" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="hrW-I2-MQA"/>
+                            <constraint firstAttribute="trailing" secondItem="gqx-vR-SoX" secondAttribute="trailing" id="lvC-RD-U5g"/>
+                            <constraint firstItem="gqx-vR-SoX" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" id="sLs-SM-AgE"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="tableView" destination="gqx-vR-SoX" id="TNu-4H-Sv1"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="224" y="133"/>
         </scene>
     </scenes>
 </document>
