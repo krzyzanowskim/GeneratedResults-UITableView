@@ -44,14 +44,14 @@ class ViewController: UIViewController {
             }
 
             if fetched.count > 0 {
-                dispatch_async(dispatch_get_main_queue()) {
+                dispatch_sync(dispatch_get_main_queue()) {
                     self.contacts += fetched
                     completion(fetched)
                 }
             } else {
                 // locally
-                dispatch_async(dispatch_get_main_queue()) {
-                    fetched = Array(allContacts[offset..<offset+limit])
+                dispatch_sync(dispatch_get_main_queue()) {
+                    fetched = Array(allContacts[offset..<min(offset+limit, allContacts.count)])
                     self.contacts += fetched
                     completion(fetched)
                 }

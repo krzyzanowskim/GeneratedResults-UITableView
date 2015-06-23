@@ -17,7 +17,7 @@ protocol AsyncGeneratorType {
     mutating func next(fetchNextBatch: FetchType, completion: NextCompletion?)
 }
 
-
+/// Generator is the class because struct is captured in asynchronous operations so offset won't update.
 class PagingGenerator<T>: AsyncGeneratorType {
     typealias Element = Array<T>
     typealias NextCompletion = (result: Element?) -> Void
