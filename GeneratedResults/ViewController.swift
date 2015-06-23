@@ -24,38 +24,36 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         paging.next(fetchNextBatch) // first page
     }
-        
-    /// Fetch data locally or from the backend
-    private func fetchNextBatch(offset: Int, limit: Int, completion: (Array<Contact>) -> Void) -> Void {
+    
+    private func downloadGithubUsers(pageNum: Int) -> [Contact]? {
         var fetched = [Contact]()
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
-            if let url = NSURL(string: "https://api.github.com/users?page=\(offset)"),
-                let data = NSData(contentsOfURL: url)
-            {
-                var parseError: NSError?
-                let parsedObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error:&parseError)
-                if let users = parsedObject as? NSArray {
-                    for user in users {
-                        if let dict = user as? NSDictionary, let login = dict["login"] as? String {
-                            fetched.append(Contact(firstName:login, lastName:""))
-                        }
+        if let url = NSURL(string: "https://api.github.com/users?page=\(pageNum)&per_page=20"),
+            let data = NSData(contentsOfURL: url)
+        {
+            var parseError: NSError?
+            let parsedObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error:&parseError)
+            if let users = parsedObject as? NSArray {
+                for user in users {
+                    if let dict = user as? NSDictionary, let login = dict["login"] as? String {
+                        fetched.append(Contact(firstName:login, lastName:""))
                     }
                 }
             }
-
-            if fetched.count > 0 {
-                dispatch_sync(dispatch_get_main_queue()) {
-                    self.contacts += fetched
-                    completion(fetched)
-                }
-            } else {
-                // locally
-                dispatch_sync(dispatch_get_main_queue()) {
-                    fetched = Array(allContacts[offset..<min(offset+limit, allContacts.count)])
-                    self.contacts += fetched
-                    completion(fetched)
-                }
-            }
+        }
+        return fetched.count > 0 ? fetched : nil
+    }
+    
+    /// Fetch data locally or from the backend
+    private func fetchNextBatch(offset: Int, limit: Int, completion: (Array<Contact>) -> Void) -> Void {
+        // Remote
+        if let remotelyFetched = self.downloadGithubUsers(offset) {
+            self.contacts += remotelyFetched
+            completion(remotelyFetched)
+        } else {
+            // Local
+            let locallyFetched = Array(allContacts[offset..<min(offset+limit, allContacts.count)])
+            self.contacts += locallyFetched
+            completion(locallyFetched)
         }
     }
 }
