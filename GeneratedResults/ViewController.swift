@@ -26,9 +26,8 @@ class ViewController: UIViewController {
     }
         
     /// Fetch data locally or from the backend
-    private func fetchNextBatch(offset: Int, limit: Int, completion: (ArraySlice<Contact>) -> Void) -> Void {
+    private func fetchNextBatch(offset: Int, limit: Int, completion: (Array<Contact>) -> Void) -> Void {
         var fetched = [Contact]()
-        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
             if let url = NSURL(string: "https://api.github.com/users?page=\(offset)"),
                 let data = NSData(contentsOfURL: url)
@@ -44,9 +43,18 @@ class ViewController: UIViewController {
                 }
             }
 
-            dispatch_async(dispatch_get_main_queue()) {
-                self.contacts += fetched
-                completion(ArraySlice(fetched))
+            if fetched.count > 0 {
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.contacts += fetched
+                    completion(fetched)
+                }
+            } else {
+                // locally
+                dispatch_async(dispatch_get_main_queue()) {
+                    fetched = Array(allContacts[offset..<offset+limit])
+                    self.contacts += fetched
+                    completion(fetched)
+                }
             }
         }
     }

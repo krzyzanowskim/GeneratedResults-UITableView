@@ -17,11 +17,13 @@ protocol AsyncGeneratorType {
     mutating func next(fetchNextBatch: FetchType, completion: NextCompletion?)
 }
 
-struct PagingGenerator<T>: AsyncGeneratorType {
-    typealias Element = ArraySlice<T>
+
+class PagingGenerator<T>: AsyncGeneratorType {
+    typealias Element = Array<T>
     typealias NextCompletion = (result: Element?) -> Void
     typealias FetchType = (offset: Int, limit: Int, completion: (result: Element) -> Void) -> Void
     
+    private let queue = dispatch_queue_create("", DISPATCH_QUEUE_SERIAL)
     var offset:Int
     let limit: Int
     
@@ -30,9 +32,11 @@ struct PagingGenerator<T>: AsyncGeneratorType {
         self.limit = limit
     }
     
-    mutating func next(fetchNextBatch: FetchType, completion: NextCompletion? = nil) {
-        fetchNextBatch(offset: offset, limit: limit) { (elements) in
-            self.offset += elements.count
+    func next(fetchNextBatch: FetchType, completion: NextCompletion? = nil) {
+        fetchNextBatch(offset: self.offset, limit: self.limit) { (elements) in
+            dispatch_sync(self.queue) {
+                self.offset += elements.count
+            }
             completion?(result: elements)
         }
     }
