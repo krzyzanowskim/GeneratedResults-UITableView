@@ -12,7 +12,7 @@ let allContacts = Contact.load()!
 
 class ViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
-    private var paging = Paging<Contact>(offset: 0, limit: 1).generate()
+    private var paging = PagingGenerator<Contact>(offset: 0, limit: 1)
 
     private var contacts = [Contact]() {
         didSet {
@@ -46,7 +46,7 @@ class ViewController: UIViewController {
     /// Fetch data locally or from the backend
     private func fetchNextBatch(offset: Int, limit: Int, completion: (Array<Contact>) -> Void) -> Void {
         // Remote
-        if let remotelyFetched = self.downloadGithubUsers(offset) {
+        if let remotelyFetched = downloadGithubUsers(offset) {
             self.contacts += remotelyFetched
             completion(remotelyFetched)
         } else {
