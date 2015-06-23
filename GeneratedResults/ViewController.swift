@@ -12,8 +12,7 @@ let allContacts = Contact.load()!
 
 class ViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
-    private var paging = Paging<Contact>().generate()
-    private var lastPage = false // because you know if there is more data available
+    private var paging = Paging<Contact>(offset: 0, limit: 1).generate()
 
     private var contacts = [Contact]() {
         didSet {
@@ -21,27 +20,35 @@ class ViewController: UIViewController {
         }
     }
     
-    required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        paging.next(fetchNextBatch) // first page
     }
-    
-    @IBAction func loadMoreTapped(sender: UIButton!) {
-        paging.next(fetchNextBatch, completion: { (result) -> Void in
-            if let result = result {
-                self.contacts += result
-            }
-        })
-    }
-    
+        
     /// Fetch data locally or from the backend
     private func fetchNextBatch(offset: Int, limit: Int, completion: (ArraySlice<Contact>) -> Void) -> Void {
-        let fetched = allContacts[offset..<min(offset+limit, allContacts.count)]
-        completion(fetched)
-        lastPage = fetched.count < limit
+        var fetched = [Contact]()
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
+            if let url = NSURL(string: "https://api.github.com/users?page=\(offset)"),
+                let data = NSData(contentsOfURL: url)
+            {
+                var parseError: NSError?
+                let parsedObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error:&parseError)
+                if let users = parsedObject as? NSArray {
+                    for user in users {
+                        if let dict = user as? NSDictionary, let login = dict["login"] as? String {
+                            fetched.append(Contact(firstName:login, lastName:""))
+                        }
+                    }
+                }
+            }
+
+            dispatch_async(dispatch_get_main_queue()) {
+                self.contacts += fetched
+                completion(ArraySlice(fetched))
+            }
+        }
     }
 }
 
@@ -62,14 +69,8 @@ extension ViewController: UITableViewDataSource {
 
 extension ViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-        if !lastPage && indexPath.row == tableView.dataSource!.tableView(tableView, numberOfRowsInSection: indexPath.section) - 1 {
-
-            paging.next(fetchNextBatch, completion: { (result) -> Void in
-                if let result = result {
-                    self.contacts += result
-                }
-            })
-            
+        if indexPath.row == tableView.dataSource!.tableView(tableView, numberOfRowsInSection: indexPath.section) - 1 {
+            paging.next(fetchNextBatch)
         }
     }
 }

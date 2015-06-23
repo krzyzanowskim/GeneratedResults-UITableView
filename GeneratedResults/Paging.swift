@@ -22,12 +22,17 @@ struct PagingGenerator<T>: AsyncGeneratorType {
     typealias NextCompletion = (result: Element?) -> Void
     typealias FetchType = (offset: Int, limit: Int, completion: (result: Element) -> Void) -> Void
     
-    var offset:Int = 0
-    let limit: Int = 20
+    var offset:Int
+    let limit: Int
     
-    mutating func next(fetchNextBatch: FetchType, completion: NextCompletion?) {
+    init(offset: Int = 0, limit: Int = 25) {
+        self.offset = offset
+        self.limit = limit
+    }
+    
+    mutating func next(fetchNextBatch: FetchType, completion: NextCompletion? = nil) {
         fetchNextBatch(offset: offset, limit: limit) { (elements) in
-            self.offset += elements.count ?? 0
+            self.offset += elements.count
             completion?(result: elements)
         }
     }
@@ -43,7 +48,10 @@ protocol AsyncSequenceType: _SequenceType {
 struct Paging<T>: AsyncSequenceType {
     typealias Generator = PagingGenerator<T>
     
+    let offset: Int
+    let limit: Int
+    
     func generate() -> Generator {
-        return Generator()
+        return Generator(offset: offset, limit: limit)
     }
 }
