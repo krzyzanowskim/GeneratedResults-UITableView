@@ -12,7 +12,7 @@ let allContacts = Contact.load()!
 
 class ViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
-    private var paging = PagingGenerator<Contact>(offset: 0, limit: 1)
+    private var paging = PagingGenerator<Contact>(startOffset: 0, limit: 1)
 
     private var contacts = [Contact]() {
         didSet {
@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        paging.next(fetchNextBatch) // first page
+        paging.next(fetchNextBatch, onFinish: updateDataSource) // first page
     }
     
     private func downloadGithubUsers(pageNum: Int) -> [Contact]? {
@@ -42,19 +42,20 @@ class ViewController: UIViewController {
         }
         return fetched.count > 0 ? fetched : nil
     }
-    
+}
+
+//MARK: Paging
+
+extension ViewController {
     /// Fetch data locally or from the backend
     private func fetchNextBatch(offset: Int, limit: Int, completion: (Array<Contact>) -> Void) -> Void {
-        // Remote
         if let remotelyFetched = downloadGithubUsers(offset) {
-            self.contacts += remotelyFetched
             completion(remotelyFetched)
-        } else {
-            // Local
-            let locallyFetched = Array(allContacts[offset..<min(offset+limit, allContacts.count)])
-            self.contacts += locallyFetched
-            completion(locallyFetched)
         }
+    }
+    
+    private func updateDataSource(elements: Array<Contact>) {
+        self.contacts += elements
     }
 }
 
@@ -76,7 +77,7 @@ extension ViewController: UITableViewDataSource {
 extension ViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath.row == tableView.dataSource!.tableView(tableView, numberOfRowsInSection: indexPath.section) - 1 {
-            paging.next(fetchNextBatch)
+            paging.next(fetchNextBatch, onFinish: updateDataSource)
         }
     }
 }

@@ -13,7 +13,7 @@ import Foundation
 protocol AsyncGeneratorType {
     typealias Element
     typealias Fetch
-    mutating func next(fetchNextBatch: Fetch)
+    mutating func next(fetchNextBatch: Fetch, onFinish: ((Element) -> Void)?)
 }
 
 /// Generator is the class because struct is captured in asynchronous operations so offset won't update.
@@ -21,21 +21,18 @@ class PagingGenerator<T>: AsyncGeneratorType {
     typealias Element = Array<T>
     typealias Fetch = (offset: Int, limit: Int, completion: (result: Element) -> Void) -> Void
     
-    private let queue = dispatch_queue_create("Paging lock queue", DISPATCH_QUEUE_SERIAL)
-    
     var offset:Int
     let limit: Int
     
-    init(offset: Int = 0, limit: Int = 25) {
-        self.offset = offset
+    init(startOffset: Int = 0, limit: Int = 25) {
+        self.offset = startOffset
         self.limit = limit
     }
     
-    func next(fetchNextBatch: Fetch) {
-        fetchNextBatch(offset: self.offset, limit: self.limit) { (elements) in
-            dispatch_sync(self.queue) {
-                self.offset += elements.count
-            }
+    func next(fetchNextBatch: Fetch, onFinish: ((Element) -> Void)? = nil) {
+        fetchNextBatch(offset: offset, limit: limit) { [unowned self] (elements) in
+            onFinish?(elements)
+            self.offset += elements.count
         }
     }
 }
@@ -50,10 +47,10 @@ protocol AsyncSequenceType: _SequenceType {
 struct Paging<T>: AsyncSequenceType {
     typealias Generator = PagingGenerator<T>
     
-    let offset: Int
+    let startOffset: Int
     let limit: Int
     
     func generate() -> Generator {
-        return Generator(offset: offset, limit: limit)
+        return Generator(startOffset: startOffset, limit: limit)
     }
 }
