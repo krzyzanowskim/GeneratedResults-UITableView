@@ -30,8 +30,12 @@ class ViewController: UIViewController {
         if let url = NSURL(string: "https://api.github.com/users?page=\(pageNum)&per_page=20"),
             let data = NSData(contentsOfURL: url)
         {
-            var parseError: NSError?
-            let parsedObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error:&parseError)
+            let parsedObject: AnyObject?
+            do {
+                parsedObject = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
+            } catch _ as NSError {
+                parsedObject = nil
+            }
             if let users = parsedObject as? NSArray {
                 for user in users {
                     if let dict = user as? NSDictionary, let login = dict["login"] as? String {

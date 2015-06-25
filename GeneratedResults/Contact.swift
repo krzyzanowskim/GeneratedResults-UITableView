@@ -22,9 +22,9 @@ struct Contact: Hashable {
            let text = NSString(data: data, encoding: NSUTF8StringEncoding) as? String
         {
             var contacts = [Contact]()
-            let lines = split(text) {$0 == "\n"}
+            let lines = split(text.characters) {$0 == "\n"}.map { String($0) }
             for line in lines {
-                let name = split(line) { $0 == "|" }
+                let name = split(line.characters) { $0 == "|" }.map { String($0) }
                 contacts.append(Contact(firstName: name[0], lastName: name[1]))
             }
             return contacts.count > 0 ? contacts : nil
