@@ -36,25 +36,3 @@ class PagingGenerator<T>: AsyncGeneratorType {
         }
     }
 }
-
-protocol foo:SequenceType {
-    
-}
-
-////MARK: Sequence
-//
-//protocol AsyncSequenceType: SequenceType {
-//    typealias Generator : AsyncGeneratorType
-//    func generate() -> Generator
-//}
-//
-//struct Paging<T>: AsyncSequenceType {
-//    typealias Generator = PagingGenerator<T>
-//    
-//    let startOffset: Int
-//    let limit: Int
-//    
-//    func generate() -> Generator {
-//        return Generator(startOffset: startOffset, limit: limit)
-//    }
-//}
