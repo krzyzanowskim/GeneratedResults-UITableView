@@ -58,8 +58,8 @@ extension ViewController {
         }
     }
     
-    private func updateDataSource(elements: Array<Contact>) {
-        self.contacts += elements
+    private func updateDataSource(items: Array<Contact>) {
+        self.contacts += items
     }
 }
 

@@ -30,9 +30,9 @@ class PagingGenerator<T>: AsyncGeneratorType {
     }
     
     func next(fetchNextBatch: Fetch, onFinish: ((Element) -> Void)? = nil) {
-        fetchNextBatch(offset: offset, limit: limit) { [unowned self] (elements) in
-            onFinish?(elements)
-            self.offset += elements.count
+        fetchNextBatch(offset: offset, limit: limit) { [unowned self] (items) in
+            onFinish?(items)
+            self.offset += items.count
         }
     }
 }
