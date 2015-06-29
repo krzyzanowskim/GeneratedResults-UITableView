@@ -12,7 +12,7 @@ let allContacts = Contact.load()!
 
 class ViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
-    private var paging = PagingGenerator<Contact>(startOffset: 0, limit: 1)
+    private var paging = PagingGenerator<Contact>(startOffset: 0, limit: 25)
 
     private var contacts = [Contact]() {
         didSet {
@@ -25,9 +25,10 @@ class ViewController: UIViewController {
         paging.next(fetchNextBatch, onFinish: updateDataSource) // first page
     }
     
-    private func downloadGithubUsers(pageNum: Int) -> [Contact]? {
+    private func downloadGithubUsers(offset: Int) -> [Contact]? {
         var fetched = [Contact]()
-        if let url = NSURL(string: "https://api.github.com/users?page=\(pageNum)&per_page=20"),
+        let pageNum:Int = offset / paging.limit
+        if let url = NSURL(string: "https://api.github.com/users?page=\(pageNum)&per_page=\(paging.limit)"),
             let data = NSData(contentsOfURL: url)
         {
             let parsedObject: AnyObject?
