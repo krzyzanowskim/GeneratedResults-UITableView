@@ -72,7 +72,7 @@ extension ViewController: UITableViewDataSource {
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: nil)
+        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
         let contact = contacts[indexPath.row]
         cell.textLabel?.text = "\(contact.firstName) \(contact.lastName)"
         return cell
