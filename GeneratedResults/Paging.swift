@@ -11,8 +11,8 @@ import Foundation
 //MARK: Generator
 
 protocol AsyncGeneratorType {
-    typealias Element
-    typealias Fetch
+    associatedtype Element
+    associatedtype Fetch
     mutating func next(fetchNextBatch: Fetch, onFinish: ((Element) -> Void)?)
 }
 
